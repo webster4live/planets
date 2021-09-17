@@ -1,0 +1,653 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled0.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyPmoPL23u3FLkOad7J+/pus",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/webster4live/planets/blob/main/practice\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "4fMiX1ZPzIK9",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "7dff6ff8-cbd4-4011-a872-387fc3102c23"
+      },
+      "source": [
+        "!pip install tensorflow==1.15.0 tensorflow.gpu==1.15.0 stable_baselines gym box2d.py "
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Collecting tensorflow==1.15.0\n",
+            "  Using cached tensorflow-1.15.0-cp37-cp37m-manylinux2010_x86_64.whl (412.3 MB)\n",
+            "Collecting tensorflow.gpu==1.15.0\n",
+            "  Using cached tensorflow_gpu-1.15.0-cp37-cp37m-manylinux2010_x86_64.whl (411.5 MB)\n",
+            "Collecting stable_baselines\n",
+            "  Using cached stable_baselines-2.10.2-py3-none-any.whl (240 kB)\n",
+            "Requirement already satisfied: gym in /usr/local/lib/python3.7/dist-packages (0.17.3)\n",
+            "Collecting box2d.py\n",
+            "  Downloading box2d_py-2.3.8-cp37-cp37m-manylinux1_x86_64.whl (448 kB)\n",
+            "\u001b[K     |████████████████████████████████| 448 kB 15.3 MB/s \n",
+            "\u001b[?25hRequirement already satisfied: google-pasta>=0.1.6 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (0.2.0)\n",
+            "Requirement already satisfied: astor>=0.6.0 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (0.8.1)\n",
+            "Requirement already satisfied: keras-preprocessing>=1.0.5 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.1.2)\n",
+            "Requirement already satisfied: grpcio>=1.8.6 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.39.0)\n",
+            "Requirement already satisfied: absl-py>=0.7.0 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (0.12.0)\n",
+            "Collecting gast==0.2.2\n",
+            "  Downloading gast-0.2.2.tar.gz (10 kB)\n",
+            "Requirement already satisfied: opt-einsum>=2.3.2 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (3.3.0)\n",
+            "Requirement already satisfied: six>=1.10.0 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.15.0)\n",
+            "Requirement already satisfied: wheel>=0.26 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (0.37.0)\n",
+            "Requirement already satisfied: numpy<2.0,>=1.16.0 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.19.5)\n",
+            "Collecting tensorflow-estimator==1.15.1\n",
+            "  Downloading tensorflow_estimator-1.15.1-py2.py3-none-any.whl (503 kB)\n",
+            "\u001b[K     |████████████████████████████████| 503 kB 53.8 MB/s \n",
+            "\u001b[?25hCollecting keras-applications>=1.0.8\n",
+            "  Downloading Keras_Applications-1.0.8-py3-none-any.whl (50 kB)\n",
+            "\u001b[K     |████████████████████████████████| 50 kB 6.7 MB/s \n",
+            "\u001b[?25hRequirement already satisfied: termcolor>=1.1.0 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.1.0)\n",
+            "Collecting tensorboard<1.16.0,>=1.15.0\n",
+            "  Downloading tensorboard-1.15.0-py3-none-any.whl (3.8 MB)\n",
+            "\u001b[K     |████████████████████████████████| 3.8 MB 54.9 MB/s \n",
+            "\u001b[?25hRequirement already satisfied: wrapt>=1.11.1 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (1.12.1)\n",
+            "Requirement already satisfied: protobuf>=3.6.1 in /usr/local/lib/python3.7/dist-packages (from tensorflow==1.15.0) (3.17.3)\n",
+            "Requirement already satisfied: h5py in /usr/local/lib/python3.7/dist-packages (from keras-applications>=1.0.8->tensorflow==1.15.0) (3.1.0)\n",
+            "Requirement already satisfied: werkzeug>=0.11.15 in /usr/local/lib/python3.7/dist-packages (from tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (1.0.1)\n",
+            "Requirement already satisfied: setuptools>=41.0.0 in /usr/local/lib/python3.7/dist-packages (from tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (57.4.0)\n",
+            "Requirement already satisfied: markdown>=2.6.8 in /usr/local/lib/python3.7/dist-packages (from tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (3.3.4)\n",
+            "Requirement already satisfied: importlib-metadata in /usr/local/lib/python3.7/dist-packages (from markdown>=2.6.8->tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (4.6.4)\n",
+            "Requirement already satisfied: scipy in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (1.4.1)\n",
+            "Requirement already satisfied: pandas in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (1.1.5)\n",
+            "Requirement already satisfied: matplotlib in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (3.2.2)\n",
+            "Requirement already satisfied: joblib in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (1.0.1)\n",
+            "Requirement already satisfied: cloudpickle>=0.5.5 in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (1.3.0)\n",
+            "Requirement already satisfied: opencv-python in /usr/local/lib/python3.7/dist-packages (from stable_baselines) (4.1.2.30)\n",
+            "Requirement already satisfied: pyglet<=1.5.0,>=1.4.0 in /usr/local/lib/python3.7/dist-packages (from gym) (1.5.0)\n",
+            "Requirement already satisfied: atari-py~=0.2.0 in /usr/local/lib/python3.7/dist-packages (from gym) (0.2.9)\n",
+            "Requirement already satisfied: Pillow in /usr/local/lib/python3.7/dist-packages (from gym) (7.1.2)\n",
+            "Requirement already satisfied: future in /usr/local/lib/python3.7/dist-packages (from pyglet<=1.5.0,>=1.4.0->gym) (0.16.0)\n",
+            "Requirement already satisfied: cached-property in /usr/local/lib/python3.7/dist-packages (from h5py->keras-applications>=1.0.8->tensorflow==1.15.0) (1.5.2)\n",
+            "Requirement already satisfied: typing-extensions>=3.6.4 in /usr/local/lib/python3.7/dist-packages (from importlib-metadata->markdown>=2.6.8->tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (3.7.4.3)\n",
+            "Requirement already satisfied: zipp>=0.5 in /usr/local/lib/python3.7/dist-packages (from importlib-metadata->markdown>=2.6.8->tensorboard<1.16.0,>=1.15.0->tensorflow==1.15.0) (3.5.0)\n",
+            "Requirement already satisfied: kiwisolver>=1.0.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib->stable_baselines) (1.3.1)\n",
+            "Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib->stable_baselines) (2.4.7)\n",
+            "Requirement already satisfied: python-dateutil>=2.1 in /usr/local/lib/python3.7/dist-packages (from matplotlib->stable_baselines) (2.8.2)\n",
+            "Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.7/dist-packages (from matplotlib->stable_baselines) (0.10.0)\n",
+            "Requirement already satisfied: pytz>=2017.2 in /usr/local/lib/python3.7/dist-packages (from pandas->stable_baselines) (2018.9)\n",
+            "Building wheels for collected packages: gast\n",
+            "  Building wheel for gast (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for gast: filename=gast-0.2.2-py3-none-any.whl size=7554 sha256=ce7787a35e3d73c338923cc50171d97a6e86d55ababdd328d3654917e4d07407\n",
+            "  Stored in directory: /root/.cache/pip/wheels/21/7f/02/420f32a803f7d0967b48dd823da3f558c5166991bfd204eef3\n",
+            "Successfully built gast\n",
+            "Installing collected packages: tensorflow-estimator, tensorboard, keras-applications, gast, tensorflow.gpu, tensorflow, stable-baselines, box2d.py\n",
+            "  Attempting uninstall: tensorflow-estimator\n",
+            "    Found existing installation: tensorflow-estimator 2.6.0\n",
+            "    Uninstalling tensorflow-estimator-2.6.0:\n",
+            "      Successfully uninstalled tensorflow-estimator-2.6.0\n",
+            "  Attempting uninstall: tensorboard\n",
+            "    Found existing installation: tensorboard 2.6.0\n",
+            "    Uninstalling tensorboard-2.6.0:\n",
+            "      Successfully uninstalled tensorboard-2.6.0\n",
+            "  Attempting uninstall: gast\n",
+            "    Found existing installation: gast 0.4.0\n",
+            "    Uninstalling gast-0.4.0:\n",
+            "      Successfully uninstalled gast-0.4.0\n",
+            "  Attempting uninstall: tensorflow\n",
+            "    Found existing installation: tensorflow 2.6.0\n",
+            "    Uninstalling tensorflow-2.6.0:\n",
+            "      Successfully uninstalled tensorflow-2.6.0\n",
+            "\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n",
+            "tensorflow-probability 0.13.0 requires gast>=0.3.2, but you have gast 0.2.2 which is incompatible.\n",
+            "kapre 0.3.5 requires tensorflow>=2.0.0, but you have tensorflow 1.15.0 which is incompatible.\u001b[0m\n",
+            "Successfully installed box2d.py-2.3.8 gast-0.2.2 keras-applications-1.0.8 stable-baselines-2.10.2 tensorboard-1.15.0 tensorflow-1.15.0 tensorflow-estimator-1.15.1 tensorflow.gpu-1.15.0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "klYGclA9JQom",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 350
+        },
+        "outputId": "a73c0758-4840-4105-bc25-841b1e55cee6"
+      },
+      "source": [
+        "import gym\n",
+        "from stable_baselines import ACER\n",
+        "from stable_baselines.common.vec_env import DummyVecEnv\n",
+        "from stable_baselines.common.evaluation import evaluate_policy\n"
+      ],
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "ModuleNotFoundError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mModuleNotFoundError\u001b[0m                       Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-1-3f30efc07a12>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mgym\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0;32mfrom\u001b[0m \u001b[0mstable_baselines\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mACER\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      3\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0mstable_baselines\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcommon\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mvec_env\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mDummyVecEnv\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0mstable_baselines\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcommon\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mevaluation\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mevaluate_policy\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mModuleNotFoundError\u001b[0m: No module named 'stable_baselines'",
+            "",
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0;32m\nNOTE: If your import is failing due to a missing package, you can\nmanually install dependencies using either !pip or !apt.\n\nTo view examples of installing some common dependencies, click the\n\"Open Examples\" button below.\n\u001b[0;31m---------------------------------------------------------------------------\u001b[0m\n"
+          ],
+          "errorDetails": {
+            "actions": [
+              {
+                "action": "open_url",
+                "actionText": "Open Examples",
+                "url": "/notebooks/snippets/importing_libraries.ipynb"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8fdlaQnLMHDG"
+      },
+      "source": [
+        "|environment_name = 'LunarLander-v2'"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 162
+        },
+        "id": "F1ZXrzRGRXJA",
+        "outputId": "9093a083-4ffa-443d-da55-efdcef8ef773"
+      },
+      "source": [
+        "env=gym.make(environment_name)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-17-d04688727429>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0menv\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mgym\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmake\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0menvironment_name\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m: name 'environment_name' is not defined"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hbsbwIUXS7zW",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "382a36b2-1acd-4f8d-8240-f60b6c7fb583"
+      },
+      "source": [
+        "[1,2,3]"
+      ],
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[1, 2, 3]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 2
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vJprKqQNGIP0"
+      },
+      "source": [
+        "my_list=['a','b','c']"
+      ],
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "id": "zbFAFDVVGO-2",
+        "outputId": "48b985de-8193-4a55-ed1c-3f43ec245561"
+      },
+      "source": [
+        "my_list[1]"
+      ],
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            },
+            "text/plain": [
+              "'b'"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 4
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "BNcezdLTGTdV",
+        "outputId": "1b38d23b-b908-45df-beaf-d331a784b45d"
+      },
+      "source": [
+        "my_list[:]"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['a', 'b', 'c']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aLO4_OhtGY81",
+        "outputId": "accc6867-b6a1-4af1-a061-a5cd4cc1c11a"
+      },
+      "source": [
+        "my_list[2:]"
+      ],
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['c']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "BILMerJJGcL1",
+        "outputId": "8eef2ad2-09c9-4620-871b-05b29d2b6122"
+      },
+      "source": [
+        "my_list[:2]"
+      ],
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['a', 'b']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "bpNduWykGiAG"
+      },
+      "source": [
+        "my_list.append('d')"
+      ],
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-Yc_NytHHq5M",
+        "outputId": "24094990-fc70-4288-e8d4-4e85ade7edac"
+      },
+      "source": [
+        "my_list"
+      ],
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['a', 'b', 'c', 'd']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "bGUam7VXHyQ8"
+      },
+      "source": [
+        "my_list.append('d' 'e')"
+      ],
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "gURApIOTH5zv",
+        "outputId": "aad81926-ba2a-4e06-ec7d-155f51f617ba"
+      },
+      "source": [
+        "my_list"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['a', 'b', 'c', 'd', 'de']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "id": "zt7MnGe0H8g-",
+        "outputId": "6a5b7d8e-36ef-4ab6-a1d1-00ec73ad730a"
+      },
+      "source": [
+        "my_list.pop(2)"
+      ],
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            },
+            "text/plain": [
+              "'c'"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9FlQLCu3IEpP",
+        "outputId": "292d170a-a305-4e0a-dd35-1249197b997d"
+      },
+      "source": [
+        "my_list"
+      ],
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['a', 'b', 'd', 'de']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "cNcx_djuIJXv"
+      },
+      "source": [
+        "my_list.remove('a')"
+      ],
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "7FK_sdhWIOYf",
+        "outputId": "1aae0f25-e8db-48a3-a12e-9d57c6a5b740"
+      },
+      "source": [
+        "my_list"
+      ],
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['b', 'd', 'de']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 163
+        },
+        "id": "9szNstpvIgrw",
+        "outputId": "4e403313-65c2-4090-ca0e-ede3f4eb7ee6"
+      },
+      "source": [
+        "my_list.push('s')"
+      ],
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "AttributeError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mAttributeError\u001b[0m                            Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-22-0746b3435d74>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mmy_list\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mpush\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m's'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;31mAttributeError\u001b[0m: 'list' object has no attribute 'push'"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Utir5_irI1Ky"
+      },
+      "source": [
+        "my_list.append('j')"
+      ],
+      "execution_count": 23,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "dziQrdtTJELE",
+        "outputId": "19f5a6c9-4287-4b4f-b569-42022b8ab24b"
+      },
+      "source": [
+        "my_list"
+      ],
+      "execution_count": 24,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['b', 'd', 'de', 'j']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 24
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zEQp2WHDJGZV",
+        "outputId": "58c4843f-6c08-4efd-a770-9e6ebbd90a55"
+      },
+      "source": [
+        "my_list[:3]"
+      ],
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['b', 'd', 'de']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yUP1tVk2JOXV",
+        "outputId": "f9249464-7d49-4dd9-87f9-710223c0bd60"
+      },
+      "source": [
+        "my_list[3:]"
+      ],
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['j']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 26
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "4Zd9IykFJV9W"
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
